@@ -20,8 +20,6 @@ def backprop(trainloader, model, optimizer):
 	for inputs, labels in tqdm(trainloader, ncols=80):
 		optimizer.zero_grad()
 		outputs = model(inputs)
-		# label_one_hot = get_one_hot(labels[0], 10)
-		# loss = torch.sum((outputs - label_one_hot) ** 2)
 		loss = l(outputs.view(1,-1), labels)
 		loss.backward()
 		optimizer.step()

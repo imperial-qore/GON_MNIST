@@ -22,12 +22,12 @@ def gen(model, data_type, trainloader):
         while True:
             copy = deepcopy(init.data)
             res = model(init)
-            # z = torch.sum((res - label_one_hot) ** 2)
             z = l(res.view(1,-1), label_vec)
             # if iteration % 1000 == 0: plot_image(init.data.view(1,28,28).numpy().squeeze(), iteration)
             optimizer.zero_grad()
             z.backward()
             optimizer.step()
+            # scheduler.step()
             equal = equal + 1 if torch.all(abs(copy - init.data) < 1e-5) or z.item() - copyz < 1e-10 else 0
             if equal > 20: break
             copyz = z.item()

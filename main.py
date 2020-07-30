@@ -4,16 +4,25 @@ from src.models import *
 from src.gen import *
 
 from sys import argv
-from time import time
 from tqdm import tqdm
+
+
+def augment(trainloader):
+	trainlist = list(trainloader)
+	for i in range(BATCH_SIZE//10):
+		trainlist.append([torch.rand((1,1,28,28), dtype=torch.float)*2 - 1, torch.LongTensor([10])])
+	random.shuffle(trainlist)
+	return trainlist
 
 def backprop(trainloader, model, optimizer):
 	total = 0
-	for inputs, labels in tqdm(list(trainloader)[:100], ncols=80):
+	l = nn.CrossEntropyLoss()
+	for inputs, labels in tqdm(trainloader, ncols=80):
 		optimizer.zero_grad()
 		outputs = model(inputs)
-		label_one_hot = get_one_hot(labels[0], 10)
-		loss = torch.sum((outputs - label_one_hot) ** 2)
+		# label_one_hot = get_one_hot(labels[0], 10)
+		# loss = torch.sum((outputs - label_one_hot) ** 2)
+		loss = l(outputs.view(1,-1), labels)
 		loss.backward()
 		optimizer.step()
 		total += loss.item()
@@ -40,7 +49,7 @@ def save_model(model, optimizer, epoch, accuracy_list):
         'accuracy_list': accuracy_list}, file_path)
 
 def load_model(filename, model, data_type):
-	lr = 0.001
+	lr = 0.00001
 	optimizer = torch.optim.Adam(model.parameters() , lr=lr, weight_decay=1e-5)
 	file_path = MODEL_SAVE_PATH + "/" + filename + "_Trained.ckpt"
 	if os.path.exists(file_path):
@@ -64,28 +73,22 @@ if __name__ == '__main__':
 	trainset, valset = eval("load_"+data_type+"_data()")
 
 	if exec_type == "train":
+		valloader = torch.utils.data.DataLoader(valset, batch_size=1, shuffle=True)
 		for epoch in range(start_epoch+1, start_epoch+EPOCHS+1):
 			print('EPOCH', epoch)
-			trainloader = torch.utils.data.DataLoader(trainset, batch_size=1, shuffle=True)
-			valloader = torch.utils.data.DataLoader(valset, batch_size=1, shuffle=True)
-			loss = backprop(trainloader, model, optimizer)
+			indices = np.random.randint(0, len(trainset), BATCH_SIZE)   
+			sampler = torch.utils.data.sampler.SubsetRandomSampler(indices)
+			trainloader = torch.utils.data.DataLoader(trainset, batch_size=1, sampler=sampler)
+			loss = backprop(augment(trainloader), model, optimizer)
 			trainLoss, testAcc = float(loss), float(accuracy(valloader, model))
 			accuracy_list.append((testAcc, trainLoss))
 			print("Loss on train, Accuracy on test =", trainLoss, testAcc)
 			if epoch % 10 == 0:
 				save_model(model, optimizer, epoch, accuracy_list)
-		print ("The minimum loss on test set is ", str(min(accuracy_list)), " at epoch ", accuracy_list.index(min(accuracy_list)))
 
 		plot_accuracies(accuracy_list)
 	else:
-		print(model.find); start = time()
 		for param in model.parameters(): param.requires_grad = False
-		bounds = np.array([[0,9.5], [0,90], [1,40], [-16,16]])
 
-		if exec_type == "ga":
-			ga(dataset, model, bounds, data_type)
-		elif exec_type == "opt":
-			opt(dataset, model, bounds, data_type)
-		elif exec_type == "data":
-			least_dataset(dataset, data_type)
-		print("Time", time()-start)
+		if "mnist" in data_type:
+			gen(model, data_type, trainset)

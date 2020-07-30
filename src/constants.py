@@ -1,4 +1,5 @@
-EPOCHS = 10
+EPOCHS = 500
+BATCH_SIZE = 512
 MODEL_SAVE_PATH = 'checkpoints'
 
 DATASET_SAVE_PATH = 'datasets'

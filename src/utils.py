@@ -30,20 +30,21 @@ class color:
     UNDERLINE = '\033[4m'
 
 def get_one_hot(index, size):
-	a = torch.FloatTensor(index.shape[0], size)
-	a.zero_()
-	y = index.view(-1,1).long()
-	a.scatter_(1, y, 1)
-	return a
+	a = np.zeros(size)
+	a[index] = 1
+	return torch.FloatTensor(a)
 
 def load_mnist_data():
 	trainset = datasets.MNIST(DATASET_SAVE_PATH, download=True, train=True, transform=transform)
 	valset = datasets.MNIST(DATASET_SAVE_PATH, download=True, train=False, transform=transform)
 	return trainset, valset
 
+def load_mnist2_data():
+	return load_mnist_data()
+
 def plot_accuracies(accuracy_list):
-	trainAcc = [i[0] for i in accuracy_list]
-	testAcc = [i[1] for i in accuracy_list]
+	trainAcc = [i[1] for i in accuracy_list]
+	testAcc = [i[0] for i in accuracy_list]
 	plt.xlabel('Epochs')
 	plt.ylabel('Average Training Loss')
 	plt.plot(range(len(trainAcc)), trainAcc, label='Average Training Loss', linewidth=1, linestyle='-', marker='.')
@@ -51,8 +52,11 @@ def plot_accuracies(accuracy_list):
 	plt.savefig('training-graph.pdf')
 	plt.clf()
 	plt.xlabel('Epochs')
-	plt.ylabel('Average Testing Loss')
-	plt.errorbar(range(len(testAcc)), testAcc, label='Average Testing Loss', alpha = 0.7,\
+	plt.ylabel('Average Testing Accuracy')
+	plt.errorbar(range(len(testAcc)), testAcc, label='Average Testing Accuracy', alpha = 0.7,\
 	    linewidth = 1, linestyle='dotted', marker='+')
 	plt.legend(loc=4)
 	plt.savefig('testing-graph.pdf')
+
+def plot_image(data, iteration):
+	plt.imsave('test_'+str(iteration)+'.png', data, cmap='gray_r')

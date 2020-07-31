@@ -6,7 +6,6 @@ from src.gen import *
 from sys import argv
 from tqdm import tqdm
 
-
 def augment(trainloader):
 	trainlist = list(trainloader)
 	for i in tqdm(list(range(N_CLASSES)), ncols=80, desc='Augmenting data'):
@@ -91,6 +90,6 @@ if __name__ == '__main__':
 
 		if "mnist" in data_type:
 			label = 2; print(label)
-			data, _, diffs = gen(model, data_type, trainset, num_examples=5, label=label, epsilon=1e-5)
+			data, _, diffs = gen(model, data_type, trainset, num_examples=5, label=label, epsilon=1e-4)
 			best = data[diffs.index(max(diffs))].data.view(1,28,28).numpy().squeeze()
 			plot_image(best, label)

@@ -8,19 +8,26 @@ class mnist(nn.Module):
         self.name = "mnist"
         self.activation = nn.Tanh()
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
-        self.conv1 = nn.Conv2d(1, 32, 3, 1)
-        self.conv2 = nn.Conv2d(32, 64, 3, 1)
-        self.fc1 = nn.Linear(9216, 256)
-        self.fc2 = nn.Linear(256, 11)
+        self.conv1 = nn.Conv2d(1, 128, 5, 1, 2)
+        self.conv2 = nn.Conv2d(128, 64, 3, 1, 1)
+        self.conv3 = nn.Conv2d(64, 32, 3, 1, 1)
+        self.conv4 = nn.Conv2d(32, 16, 3, 1, 1)
+        self.fc1 = nn.Linear(12544, 1024)
+        self.fc2 = nn.Linear(1024, 256)
+        self.fc3 = nn.Linear(256, 128)
+        self.fc4 = nn.Linear(128, 20)
         self.output = nn.Softmax(dim=0)
 
     def forward(self, x):
         x = self.activation(self.conv1(x))
         x = self.activation(self.conv2(x))
-        x = self.pool(x)
+        x = self.activation(self.conv3(x))
+        x = self.activation(self.conv4(x))
         x = x.flatten()
         x = self.activation(self.fc1(x))
-        x = self.output(self.fc2(x))
+        x = self.activation(self.fc2(x))
+        x = self.activation(self.fc3(x))
+        x = self.output(self.fc4(x))
         return x
 
 

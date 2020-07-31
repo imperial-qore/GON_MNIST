@@ -6,19 +6,18 @@ from src.utils import *
 from src.constants import *
 from tqdm import tqdm
 
-def gen(model, data_type, trainloader):
+import matplotlib.pyplot as plt
+
+def gen(model, data_type, trainloader, num_examples, label, epsilon=1e-2):
     lr = 0.05
-    iteration = 0; equal = 0; label = 2 #random.randint(0,9)
-    # label_one_hot = get_one_hot(label, 10)
-    print(label); copyz = 10
-    diffs, data = [], []
+    iteration = 0; equal = 0
+    diffs, data, labels = [], [], []
     l, label_vec = torch.nn.CrossEntropyLoss(), torch.LongTensor([label])
-    for restart in tqdm(list(range(100)), ncols=80):
-        # init = random.choice(trainloader)[0].view(1,1,28,28)
+    for restart in range(num_examples):
         init = torch.rand((1,1,28,28), dtype=torch.float)*2 - 1
         init.requires_grad = True
-        optimizer = torch.optim.Adam([init] , lr=lr)
-        # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=10)
+        copyz = 10; optimizer = torch.optim.AdamW([init] , lr=lr); zs = []
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=50)
         while True:
             copy = deepcopy(init.data)
             res = model(init)
@@ -27,13 +26,16 @@ def gen(model, data_type, trainloader):
             optimizer.zero_grad()
             z.backward()
             optimizer.step()
-            # scheduler.step()
-            equal = equal + 1 if torch.all(abs(copy - init.data) < 1e-5) or z.item() - copyz < 1e-10 else 0
-            if equal > 20: break
+            scheduler.step()
+            equal = equal + 1 if torch.all(abs(copy - init.data) < 1e-5) or (0 < copyz - z.item() < epsilon) else 0
+            if equal > 30: break
+            # print(equal, end=' ')
             copyz = z.item()
+            # if iteration % 10 == 0: zs.append(copyz)
             iteration += 1
-        diffs.append(z.item()); data.append(copy.view(1,28,28).numpy().squeeze())
-    best = data[diffs.index(max(diffs))]
-    plot_image(best, label)
+        # plt.plot(zs); plt.show(); plt.clf()
+        init.requires_grad = False
+        diffs.append(z.item()); data.append(init); labels.append(label_vec+N_CLASSES)
+    return data, labels, diffs
 
 

@@ -9,15 +9,16 @@ from tqdm import tqdm
 
 def augment(trainloader):
 	trainlist = list(trainloader)
-	for i in range(BATCH_SIZE//10):
-		trainlist.append([torch.rand((1,1,28,28), dtype=torch.float)*2 - 1, torch.LongTensor([10])])
+	for i in tqdm(list(range(N_CLASSES)), ncols=80, desc='Augmenting data'):
+		data, labels, _ = gen(model, data_type, trainset, num_examples=BATCH_SIZE//N_CLASSES, label=i)
+		trainlist.extend(list(zip(data, labels)))
 	random.shuffle(trainlist)
 	return trainlist
 
 def backprop(trainloader, model, optimizer):
 	total = 0
 	l = nn.CrossEntropyLoss()
-	for inputs, labels in tqdm(trainloader, ncols=80):
+	for inputs, labels in tqdm(trainloader, ncols=80, desc='Training'):
 		optimizer.zero_grad()
 		outputs = model(inputs)
 		loss = l(outputs.view(1,-1), labels)
@@ -28,7 +29,7 @@ def backprop(trainloader, model, optimizer):
 
 def accuracy(valloader, model):
 	correct_count, all_count = 0, 0
-	for inputs, labels in valloader:
+	for inputs, labels in tqdm(list(valloader, ncols=80, desc='Evaluating')):
 	    with torch.no_grad():
 	        probs = model(inputs).tolist()
 	    pred_label = probs.index(max(probs))
@@ -89,4 +90,7 @@ if __name__ == '__main__':
 		for param in model.parameters(): param.requires_grad = False
 
 		if "mnist" in data_type:
-			gen(model, data_type, trainset)
+			label = 2; print(label)
+			data, _, diffs = gen(model, data_type, trainset, num_examples=5, label=label, epsilon=1e-5)
+			best = data[diffs.index(max(diffs))].data.view(1,28,28).numpy().squeeze()
+			plot_image(best, label)

@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 import matplotlib.pyplot as plt
 
-def gen(model, data_type, trainloader, num_examples, label, epsilon=1e-2):
+def gen(model, data_type, trainloader, num_examples, label, epsilon=1e-4):
     lr = 0.05
     iteration = 0; equal = 0
     diffs, data, labels = [], [], []

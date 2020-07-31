@@ -6,13 +6,14 @@ from src.gen import *
 from sys import argv
 from tqdm import tqdm
 
-def augment(trainloader):
+def augment(trainloader, fake_data):
 	trainlist = list(trainloader)
 	for i in tqdm(list(range(N_CLASSES)), ncols=80, desc='Augmenting data'):
-		data, labels, _ = gen(model, data_type, trainset, num_examples=BATCH_SIZE//N_CLASSES, label=i)
-		trainlist.extend(list(zip(data, labels)))
+		data, labels, _ = gen(model, data_type, trainset, num_examples=(1 if len(fake_data) else BATCH_SIZE//N_CLASSES), label=i)
+		fake_data.extend(list(zip(data, labels)))
+	fake_data = fake_data[-100:]; trainlist.extend(fake_data)
 	random.shuffle(trainlist)
-	return trainlist
+	return trainlist, fake_data
 
 def backprop(trainloader, model, optimizer):
 	total = 0
@@ -28,7 +29,7 @@ def backprop(trainloader, model, optimizer):
 
 def accuracy(valloader, model):
 	correct_count, all_count = 0, 0
-	for inputs, labels in tqdm(list(valloader, ncols=80, desc='Evaluating')):
+	for inputs, labels in tqdm(list(valloader), ncols=80, desc='Evaluating'):
 	    with torch.no_grad():
 	        probs = model(inputs).tolist()
 	    pred_label = probs.index(max(probs))
@@ -38,13 +39,14 @@ def accuracy(valloader, model):
 	    all_count += 1
 	return correct_count/all_count
 
-def save_model(model, optimizer, epoch, accuracy_list):
+def save_model(model, optimizer, epoch, accuracy_list, fake_data):
 	file_path = MODEL_SAVE_PATH + "/" + model.name + "_" + str(epoch) + ".ckpt"
 	torch.save({
         'epoch': epoch,
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
-        'accuracy_list': accuracy_list}, file_path)
+        'accuracy_list': accuracy_list,
+        'fake_data': fake_data}, file_path)
 
 def load_model(filename, model, data_type):
 	lr = 0.00001
@@ -56,18 +58,19 @@ def load_model(filename, model, data_type):
 		model.load_state_dict(checkpoint['model_state_dict'])
 		optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 		epoch = checkpoint['epoch']
+		fake_data = checkpoint['fake_data']
 		accuracy_list = checkpoint['accuracy_list']
 	else:
-		epoch = -1; accuracy_list = []
+		epoch = -1; accuracy_list = []; fake_data = []
 		print(color.GREEN+"Creating new model: "+model.name+color.ENDC)
-	return model, optimizer, epoch, accuracy_list
+	return model, optimizer, epoch, accuracy_list, fake_data
 
 if __name__ == '__main__':
 	data_type = argv[1]
 	exec_type = argv[2]
 
 	model = eval(data_type+"()")
-	model, optimizer, start_epoch, accuracy_list = load_model(data_type, model, data_type)
+	model, optimizer, start_epoch, accuracy_list, fake_data = load_model(data_type, model, data_type)
 	trainset, valset = eval("load_"+data_type+"_data()")
 
 	if exec_type == "train":
@@ -77,12 +80,13 @@ if __name__ == '__main__':
 			indices = np.random.randint(0, len(trainset), BATCH_SIZE)   
 			sampler = torch.utils.data.sampler.SubsetRandomSampler(indices)
 			trainloader = torch.utils.data.DataLoader(trainset, batch_size=1, sampler=sampler)
-			loss = backprop(augment(trainloader), model, optimizer)
+			trainlist, fake_data = augment(trainloader, fake_data)
+			loss = backprop(trainlist, model, optimizer)
 			trainLoss, testAcc = float(loss), float(accuracy(valloader, model))
 			accuracy_list.append((testAcc, trainLoss))
 			print("Loss on train, Accuracy on test =", trainLoss, testAcc)
 			if epoch % 10 == 0:
-				save_model(model, optimizer, epoch, accuracy_list)
+				save_model(model, optimizer, epoch, accuracy_list, fake_data)
 
 		plot_accuracies(accuracy_list)
 	else:

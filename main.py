@@ -11,7 +11,7 @@ def augment(trainloader, fake_data):
 	for i in tqdm(list(range(N_CLASSES)), ncols=80, desc='Augmenting data'):
 		data, labels, _ = gen(model, data_type, trainset, num_examples=(1 if len(fake_data) else BATCH_SIZE//N_CLASSES), label=i)
 		fake_data.extend(list(zip(data, labels)))
-	fake_data = fake_data[-100:]; trainlist.extend(fake_data)
+	fake_data = fake_data[-BATCH_SIZE:]; trainlist.extend(fake_data)
 	random.shuffle(trainlist)
 	return trainlist, fake_data
 

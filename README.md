@@ -7,3 +7,9 @@ Using BPTI to create a generative network
 seans - self adversarial generative network. 
 Try with only 2 classes: (1, not 1).
 Hope that this is better by training time, performance, parameters.
+
+Hypohesis = "a very good discriminator can also act as a generator". This is because a discriminator can not 
+only tell me if this is a real image or a fake image, but also tell me which direction i should move along
+to make it closer to a real image. 
+
+Up till now, people have been using discirminator only to discriminate (but NN are closed form functions!).

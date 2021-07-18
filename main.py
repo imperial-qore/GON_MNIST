@@ -68,6 +68,7 @@ def load_model(filename, model, data_type):
 		fake_data = checkpoint['fake_data']
 		accuracy_list = checkpoint['accuracy_list']
 	else:
+		for f in glob('./*.png'): os.remove(f)
 		epoch = -1; accuracy_list = []; fake_data = []
 		print(color.GREEN+"Creating new model: "+model.name+color.ENDC)
 	return model, optimizer, epoch, accuracy_list, fake_data
@@ -79,7 +80,6 @@ if __name__ == '__main__':
 	model = eval(data_type+"()")
 	model, optimizer, start_epoch, accuracy_list, fake_data = load_model(data_type, model, data_type)
 	trainset, valset = eval("load_"+data_type+"_data()")
-	for f in glob('./*.png'): os.remove(f)
 
 	if exec_type == "train":
 		valloader = torch.utils.data.DataLoader(valset, batch_size=1, shuffle=True)

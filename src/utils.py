@@ -85,3 +85,4 @@ def plot_images(fake, real, iteration):
 	    ax = fig.add_subplot(h, w, i); ax.set_xticks([]); ax.set_yticks([])
 	    plt.imshow(img, cmap='gray_r')
 	plt.savefig('data_'+str(iteration)+'.png')
+	plt.close()

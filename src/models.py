@@ -12,6 +12,8 @@ class mnist(nn.Module):
         self.conv2 = nn.Conv2d(128, 64, 3, 1, 1)
         self.conv3 = nn.Conv2d(64, 32, 3, 1, 1)
         self.conv4 = nn.Conv2d(32, 16, 3, 1, 1)
+        self.conv4 = nn.Conv2d(16, 16, 3, 1, 1)
+        self.conv4 = nn.Conv2d(16, 16, 3, 1, 1)
         self.fc1 = nn.Linear(12544, 1024)
         self.fc2 = nn.Linear(1024, 256)
         self.fc3 = nn.Linear(256, 128)

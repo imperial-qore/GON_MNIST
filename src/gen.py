@@ -24,7 +24,7 @@ def gen(model, data_type, trainloader, num_examples, label, notstart, epsilon=1e
         init.requires_grad = True
         copyz = 10; optimizer = torch.optim.AdamW([init] , lr=lr); zs = []
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=50)
-        while True:
+        for _ in range(1000):
             copy = deepcopy(init.data)
             res = model(init)
             z = l(res.view(1,-1), label_vec)

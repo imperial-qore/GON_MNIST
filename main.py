@@ -3,25 +3,31 @@ from src.utils import *
 from src.models import *
 from src.gen import *
 
+import os
 from sys import argv
 from tqdm import tqdm
+from glob import glob
 
-def augment(trainloader, fake_data):
+def augment(trainloader, fake_data, model, epoch):
 	trainlist = list(trainloader)
-	n_ex = 1 if len(fake_data) else BATCH_SIZE//N_CLASSES
+	notstart = len(fake_data)
+	n_ex = 1 if notstart else BATCH_SIZE//N_CLASSES
 	for i in tqdm(list(range(N_CLASSES)), ncols=80, desc='Augmenting data'):
-		data, labels, _ = gen(model, data_type, trainset, num_examples=n_ex, label=i)
+		data, labels, _ = gen(model, data_type, trainset, num_examples=n_ex, label=i, notstart=notstart)
 		fake_data.extend(list(zip(data, labels)))
-	fake_data = fake_data[-BATCH_SIZE:]; trainlist.extend(fake_data)
+	fake_data = fake_data[-BATCH_SIZE:]; 
+	plot_images(fake_data[-10:], trainlist[-10:], epoch)
+	trainlist.extend(fake_data)
 	random.shuffle(trainlist)
 	return trainlist, fake_data
 
 def backprop(trainloader, model, optimizer):
 	total = 0
-	l = nn.CrossEntropyLoss()
+	l = nn.MSELoss()
 	for inputs, labels in tqdm(trainloader, ncols=80, desc='Training'):
 		optimizer.zero_grad()
 		outputs = model(inputs)
+		labels = F.one_hot(labels, num_classes=2*N_CLASSES).float()
 		loss = l(outputs.view(1,-1), labels)
 		loss.backward()
 		optimizer.step()
@@ -73,6 +79,7 @@ if __name__ == '__main__':
 	model = eval(data_type+"()")
 	model, optimizer, start_epoch, accuracy_list, fake_data = load_model(data_type, model, data_type)
 	trainset, valset = eval("load_"+data_type+"_data()")
+	for f in glob('./*.png'): os.remove(f)
 
 	if exec_type == "train":
 		valloader = torch.utils.data.DataLoader(valset, batch_size=1, shuffle=True)
@@ -81,7 +88,7 @@ if __name__ == '__main__':
 			indices = np.random.randint(0, len(trainset), BATCH_SIZE)   
 			sampler = torch.utils.data.sampler.SubsetRandomSampler(indices)
 			trainloader = torch.utils.data.DataLoader(trainset, batch_size=1, sampler=sampler)
-			trainlist, fake_data = augment(trainloader, fake_data)
+			trainlist, fake_data = augment(trainloader, fake_data, model, epoch)
 			loss = backprop(trainlist, model, optimizer)
 			trainLoss, testAcc = float(loss), float(accuracy(valloader, model))
 			accuracy_list.append((testAcc, trainLoss))

@@ -1,13 +1,13 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from .constants import *
 
 class mnist(nn.Module):
     def __init__(self):
         super(mnist, self).__init__()
         self.name = "mnist"
-        self.activation = nn.Tanh()
-        self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.activation = nn.LeakyReLU(True)
         self.conv1 = nn.Conv2d(1, 128, 5, 1, 2)
         self.conv2 = nn.Conv2d(128, 64, 3, 1, 1)
         self.conv3 = nn.Conv2d(64, 32, 3, 1, 1)
@@ -15,7 +15,7 @@ class mnist(nn.Module):
         self.fc1 = nn.Linear(12544, 1024)
         self.fc2 = nn.Linear(1024, 256)
         self.fc3 = nn.Linear(256, 128)
-        self.fc4 = nn.Linear(128, 20)
+        self.fc4 = nn.Linear(128, 2*N_CLASSES)
         self.output = nn.Softmax(dim=0)
 
     def forward(self, x):
@@ -43,7 +43,7 @@ class mnist2(nn.Module):
                       nn.Tanh(),
                       nn.Linear(128, 128),
                       nn.Tanh(),
-                      nn.Linear(128, 11),
+                      nn.Linear(128, 2*N_CLASSES),
                       nn.Softmax(dim=0))
 
     def forward(self, x):

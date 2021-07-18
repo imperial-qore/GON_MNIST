@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 def scale(data):
     return torch.max(torch.tensor(-1), torch.min(data, torch.tensor(1)))
 
-def gen(model, data_type, trainloader, num_examples, label, notstart, epsilon=1e-4):
+def gen(model, data_type, trainloader, num_examples, label, notstart, epsilon=1e-5):
     lr = 0.05
     iteration = 0; equal = 0
     diffs, data, labels = [], [], []
@@ -31,7 +31,7 @@ def gen(model, data_type, trainloader, num_examples, label, notstart, epsilon=1e
             # if iteration % 1000 == 0: plot_image(init.data.view(1,28,28).numpy().squeeze(), iteration)
             optimizer.zero_grad(); z.backward(); optimizer.step(); scheduler.step()
             init.data = scale(init.data)
-            equal = equal + 1 if torch.all(abs(copy - init.data) < 1e-5) or (0 < copyz - z.item() < epsilon) else 0
+            equal = equal + 1 if torch.all(abs(copy - init.data) < 1e-6) or (0 < copyz - z.item() < epsilon) else 0
             if equal > 30: break
             # print(equal, end=' ')
             copyz = z.item()

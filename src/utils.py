@@ -37,6 +37,7 @@ def filter(dset, c):
 	dset2 = []
 	for a, b in dset: 
 		if b == c: dset2.append((a,b))
+		if len(dset2) == 10: break
 	return dset2
 
 def load_mnist_data():

@@ -56,7 +56,7 @@ def save_model(model, optimizer, epoch, accuracy_list, fake_data):
         'fake_data': fake_data}, file_path)
 
 def load_model(filename, model, data_type):
-	lr = 0.00001
+	lr = 0.000002
 	optimizer = torch.optim.Adam(model.parameters() , lr=lr, weight_decay=1e-5)
 	file_path = MODEL_SAVE_PATH + "/" + filename + "_Trained.ckpt"
 	if os.path.exists(file_path):

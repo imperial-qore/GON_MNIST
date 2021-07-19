@@ -13,7 +13,7 @@ def scale(data):
     return torch.max(torch.tensor(-1), torch.min(data, torch.tensor(1)))
 
 def gen(model, data_type, trainloader, num_examples, label, notstart, epsilon=1e-5):
-    lr = 0.05
+    lr = 0.02
     iteration = 0; equal = 0
     diffs, data, labels = [], [], []
     l, label_vec = torch.nn.CrossEntropyLoss(), torch.LongTensor([label])

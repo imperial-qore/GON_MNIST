@@ -13,3 +13,5 @@ only tell me if this is a real image or a fake image, but also tell me which dir
 to make it closer to a real image. 
 
 Up till now, people have been using discirminator only to discriminate (but NN are closed form functions!).
+
+Systems problem: Optimization of federated graph using GANs or scheduling decisions. A pseudo-neighbor of the current state can be obtained by taking that as the initial value + random noise, and apply the self-adversarial generator network. 

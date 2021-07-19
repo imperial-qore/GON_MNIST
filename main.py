@@ -7,16 +7,18 @@ import os
 from sys import argv
 from tqdm import tqdm
 from glob import glob
+import torchvision.models as models
 
 def augment(trainloader, fake_data, model, epoch):
 	trainlist = list(trainloader)
 	notstart = len(fake_data)
-	n_ex = 1 if notstart else BATCH_SIZE//N_CLASSES
+	n_ex = 2 if notstart else BATCH_SIZE//N_CLASSES
 	for i in tqdm(list(range(N_CLASSES)), ncols=80, desc='Augmenting data'):
 		data, labels, _ = gen(model, data_type, trainset, num_examples=n_ex, label=i, notstart=notstart)
 		fake_data.extend(list(zip(data, labels)))
 	fake_data = fake_data[-BATCH_SIZE:]; 
-	plot_images(fake_data[-10:], trainlist[-10:], epoch)
+	# print(fake_data[0][0], trainlist[0][0])
+	plot_images(fake_data[-10:], trainlist[-10:], epoch, data_type)
 	trainlist.extend(fake_data)
 	random.shuffle(trainlist)
 	return trainlist, fake_data
@@ -56,8 +58,8 @@ def save_model(model, optimizer, epoch, accuracy_list, fake_data):
         'fake_data': fake_data}, file_path)
 
 def load_model(filename, model, data_type):
-	lr = 0.000002
-	optimizer = torch.optim.Adam(model.parameters() , lr=lr, weight_decay=1e-5)
+	lr = 0.0000005 if 'mnist' in data_type else 0.002
+	optimizer = torch.optim.Adam(model.parameters() , lr=lr)
 	file_path = MODEL_SAVE_PATH + "/" + filename + "_Trained.ckpt"
 	if os.path.exists(file_path):
 		print(color.GREEN+"Loading pre-trained model: "+filename+color.ENDC)
@@ -77,7 +79,11 @@ if __name__ == '__main__':
 	data_type = argv[1]
 	exec_type = argv[2]
 
-	model = eval(data_type+"()")
+	model = eval(data_type+"()")  
+	# model = models.resnet18(pretrained=True); model.eval()
+	# model.name = 'ResNet18'
+	# model.fc = nn.Linear(512, 2*N_CLASSES)
+
 	model, optimizer, start_epoch, accuracy_list, fake_data = load_model(data_type, model, data_type)
 	trainset, valset = eval("load_"+data_type+"_data()")
 

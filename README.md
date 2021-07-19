@@ -22,3 +22,5 @@ Systems problem: Optimization of federated graph using GANs or scheduling decisi
 Pipeline: train disc using real data --> generate images --> train disc using fake data --> repeat.
 
 Visualizations: change of random input to sample. Generated images. Pipeline fig.
+
+Limitation: Creating real/fake images for each epoch is super slow. So only suitable for simple structured data.

@@ -1,4 +1,4 @@
-EPOCHS = 10
+EPOCHS = 30
 BATCH_SIZE = 10
 N_CLASSES = 1
 MODEL_SAVE_PATH = 'checkpoints'

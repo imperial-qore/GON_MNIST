@@ -18,6 +18,9 @@ if not os.path.exists(MODEL_SAVE_PATH):
 transform = transforms.Compose([transforms.ToTensor(),
                               transforms.Normalize((0.5,), (0.5,)),
                               ])
+
+transform2 = transforms.Compose([transforms.ToTensor()])
+
 class color:
     HEADER = '\033[95m'
     BLUE = '\033[94m'
@@ -40,9 +43,23 @@ def filter(dset, c):
 		if len(dset2) == 10: break
 	return dset2
 
+def load_cifar_data():
+	trainset = datasets.CIFAR10(DATASET_SAVE_PATH, download=True, train=True, transform=transform2)
+	valset = datasets.CIFAR10(DATASET_SAVE_PATH, download=True, train=False, transform=transform2)
+	if N_CLASSES == 1:
+		return filter(trainset, 1), filter(valset, 1)
+	return trainset, valset
+
 def load_mnist_data():
 	trainset = datasets.MNIST(DATASET_SAVE_PATH, download=True, train=True, transform=transform)
 	valset = datasets.MNIST(DATASET_SAVE_PATH, download=True, train=False, transform=transform)
+	if N_CLASSES == 1:
+		return filter(trainset, 0), filter(valset, 0)
+	return trainset, valset
+
+def load_fashionmnist_data():
+	trainset = datasets.FashionMNIST(DATASET_SAVE_PATH, download=True, train=True, transform=transform)
+	valset = datasets.FashionMNIST(DATASET_SAVE_PATH, download=True, train=False, transform=transform)
 	if N_CLASSES == 1:
 		return filter(trainset, 0), filter(valset, 0)
 	return trainset, valset
@@ -77,13 +94,13 @@ def plot_accuracies(accuracy_list):
 def plot_image(data, iteration):
 	plt.imsave('test_'+str(iteration)+'.png', data, cmap='gray_r')
 
-def plot_images(fake, real, iteration):
+def plot_images(fake, real, iteration, data_type):
 	w, h = len(fake), 2
 	fig = plt.figure(figsize=(w, h))
 	for i in range(1, w*h +1):
 	    img = fake[i - 1] if i <= w else real[i - w - 1]
-	    img = img[0].data.view(1,28,28).numpy().squeeze()
+	    img = img[0].data[0].permute(2, 1, 0).numpy().squeeze()
 	    ax = fig.add_subplot(h, w, i); ax.set_xticks([]); ax.set_yticks([])
-	    plt.imshow(img, cmap='gray_r')
+	    plt.imshow(img, interpolation='bicubic', cmap='gray_r' if 'mnist' in data_type else None)
 	plt.savefig('data_'+str(iteration)+'.png')
 	plt.close()

@@ -20,3 +20,5 @@ Up till now, people have been using discirminator only to discriminate (but NN a
 Systems problem: Optimization of federated graph using GANs or scheduling decisions. A pseudo-neighbor of the current state can be obtained by taking that as the initial value + random noise, and apply the self-adversarial generator network. Or anomaly detection.
 
 Pipeline: train disc using real data --> generate images --> train disc using fake data --> repeat.
+
+Visualizations: change of random input to sample. Generated images. Pipeline fig.

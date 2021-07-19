@@ -1,6 +1,6 @@
 # GenBPTI
 
-A discriminator is all you need.
+A discriminator is all you need: Self Adversarial Network for Fault Tolerant Distributed Computing.
 
 Using BPTI to create a generative network
 - Crossentropy loss works better

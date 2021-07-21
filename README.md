@@ -23,4 +23,6 @@ Pipeline: train disc using real data --> generate images --> train disc using fa
 
 Visualizations: change of random input to sample. Generated images. Pipeline fig.
 
+Use case: Memory constrained edge devices.
+
 Limitation: Creating real/fake images for each epoch is super slow. So only suitable for simple structured data.

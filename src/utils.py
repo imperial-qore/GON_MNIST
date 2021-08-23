@@ -101,6 +101,6 @@ def plot_images(fake, real, iteration, data_type):
 	    img = fake[i - 1] if i <= w else real[i - w - 1]
 	    img = img[0].data[0].permute(2, 1, 0).numpy().squeeze()
 	    ax = fig.add_subplot(h, w, i); ax.set_xticks([]); ax.set_yticks([])
-	    plt.imshow(img, interpolation='bicubic', cmap='gray_r' if 'mnist' in data_type else None)
-	plt.savefig('data_'+str(iteration)+'.png')
+	    plt.imshow(img, cmap='gray_r' if 'mnist' in data_type else None)
+	plt.savefig('data_'+str(iteration)+'.pdf')
 	plt.close()

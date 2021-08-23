@@ -24,7 +24,7 @@ def gen(model, data_type, trainloader, num_examples, label, notstart, epsilon=1e
         if not notstart:
             data.append(init); labels.append(label_vec+N_CLASSES); continue
         init.requires_grad = True
-        copyz = 10; optimizer = torch.optim.AdamW([init] , lr=lr); zs = []
+        copyz = 10; optimizer = torch.optim.Adam([init] , lr=lr); zs = []
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=50)
         for _ in range(1000):
             copy = deepcopy(init.data)
@@ -33,7 +33,7 @@ def gen(model, data_type, trainloader, num_examples, label, notstart, epsilon=1e
             # if iteration % 1000 == 0: plot_image(init.data.view(1,28,28).numpy().squeeze(), iteration)
             optimizer.zero_grad(); z.backward(); optimizer.step(); scheduler.step()
             init.data = scale(init.data, -1 if 'mnist' in data_type else 0)
-            equal = equal + 1 if torch.all(abs(copy - init.data) < 1e-6) or (0 < copyz - z.item() < epsilon) else 0
+            equal = equal + 1 if torch.all(abs(copy - init.data) < epsilon) or (0 < copyz - z.item() < epsilon) else 0
             if equal > 30: break
             # print(equal, end=' ')
             copyz = z.item()

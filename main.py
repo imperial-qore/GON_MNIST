@@ -12,7 +12,7 @@ import torchvision.models as models
 def augment(trainloader, fake_data, model, epoch):
 	trainlist = list(trainloader)
 	notstart = len(fake_data)
-	n_ex = 2 if notstart else BATCH_SIZE//N_CLASSES
+	n_ex = 1 if notstart else BATCH_SIZE//N_CLASSES
 	for i in tqdm(list(range(N_CLASSES)), ncols=80, desc='Augmenting data'):
 		data, labels, _ = gen(model, data_type, trainset, num_examples=n_ex, label=i, notstart=notstart)
 		fake_data.extend(list(zip(data, labels)))
@@ -58,7 +58,7 @@ def save_model(model, optimizer, epoch, accuracy_list, fake_data):
         'fake_data': fake_data}, file_path)
 
 def load_model(filename, model, data_type):
-	lr = 0.0000005 if 'mnist' in data_type else 0.002
+	lr = 0.000005 if 'mnist' in data_type else 0.002
 	optimizer = torch.optim.Adam(model.parameters() , lr=lr)
 	file_path = MODEL_SAVE_PATH + "/" + filename + "_Trained.ckpt"
 	if os.path.exists(file_path):
@@ -70,7 +70,7 @@ def load_model(filename, model, data_type):
 		fake_data = checkpoint['fake_data']
 		accuracy_list = checkpoint['accuracy_list']
 	else:
-		for f in glob('./*.png'): os.remove(f)
+		for f in glob('./*.pdf'): os.remove(f)
 		epoch = -1; accuracy_list = []; fake_data = []
 		print(color.GREEN+"Creating new model: "+model.name+color.ENDC)
 	return model, optimizer, epoch, accuracy_list, fake_data

@@ -9,6 +9,8 @@ from tqdm import tqdm
 from glob import glob
 import torchvision.models as models
 
+torch.manual_seed(1)
+
 def augment(trainloader, fake_data, model, epoch):
 	trainlist = list(trainloader)
 	notstart = len(fake_data)

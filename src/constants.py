@@ -1,6 +1,7 @@
 EPOCHS = 30
 BATCH_SIZE = 10
 N_CLASSES = 1
+CLASS = 0
 MODEL_SAVE_PATH = 'checkpoints'
 
 DATASET_SAVE_PATH = 'datasets'

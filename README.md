@@ -1,28 +1,40 @@
-# GenBPTI
+# Using GON for hand-written digit generation
 
-A discriminator is all you need: Self Adversarial Network for Fault Tolerant Distributed Computing.
+Hypothesis: "A discriminator is all you need". A sufficiently trained discriminator could not only indicate whether an input belongs to a data distribution but also how to tweak the input to make it resemble more closely to the target distribution. Thus, we can use only a discriminator for data generation and use those as fake samples in a self-adversarial training fashion. This allows us to reduce the parameter size significantly compared to traditional GANs.
 
-Using BPTI to create a generative network
-- Crossentropy loss works better
-- Adding negative (random images) examples helps
-- Tanh() is better than relu or prelu
-
-seans - self adversarial generative network. 
-Try with only 2 classes: (1, not 1).
-Hope that this is better by training time, performance, parameters.
-
-Hypohesis = "a very good discriminator can also act as a generator". This is because a discriminator can not 
+Thus, a good discriminator can also act as a generator. This is because a discriminator can not 
 only tell me if this is a real image or a fake image, but also tell me which direction i should move along
-to make it closer to a real image. 
+to make it closer to a real image.  Up till now, people have been using discirminator only to discriminate, but neural networks are closed form functions, allowing us to backpropagate gradients to input and run optimization in the input space. The only limitation of GON is that it is slower to train that GANs due to the optimization loop in each epoch.
 
-Up till now, people have been using discirminator only to discriminate (but NN are closed form functions!).
+In this repo, show the broader impact of GONs on how they can be used to generate data from any distribution (assuming sufficient training times). Specifically, we use GONs to generate hand-written digits by training on the MNIST dataset.
 
-Systems problem: Optimization of federated graph using GANs or scheduling decisions. A pseudo-neighbor of the current state can be obtained by taking that as the initial value + random noise, and apply the self-adversarial generator network. Or anomaly detection.
+The performance of the model can be visualized from the following figure that shows generated zeros in a few-shot setting.
 
-Pipeline: train disc using real data --> generate images --> train disc using fake data --> repeat.
+![Alt text](save.png?raw=true "results")
 
-Visualizations: change of random input to sample. Generated images. Pipeline fig.
 
-Use case: Memory constrained edge devices.
+## Installation
+This code needs Python-3.7 or higher.
+```bash
+pip3 install torch==1.8.1+cpu torchvision==0.9.1+cpu torchaudio===0.8.1 -f https://download.pytorch.org/whl/torch_stable.html
+pip3 install -r requirements.txt
+```
 
-Limitation: Creating real/fake images for each epoch is super slow. So only suitable for simple structured data.
+## Generating digits with GONs
+Change the digit you want to generate by replacing the `CLASS` variable. Then run the following command
+```bash
+python3 main.py mnist train
+```
+
+Some insights.
+- Crossentropy loss works better than MSE.
+- Adding negative (random images) examples helps.
+- Tanh() is better than relu or prelu.
+
+## License
+
+BSD-2-Clause. 
+Copyright (c) 2021, Shreshth Tuli.
+All rights reserved.
+
+See License file for more details.

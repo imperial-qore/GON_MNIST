@@ -54,7 +54,7 @@ def load_mnist_data():
 	trainset = datasets.MNIST(DATASET_SAVE_PATH, download=True, train=True, transform=transform)
 	valset = datasets.MNIST(DATASET_SAVE_PATH, download=True, train=False, transform=transform)
 	if N_CLASSES == 1:
-		return filter(trainset, 0), filter(valset, 0)
+		return filter(trainset, CLASS), filter(valset, CLASS)
 	return trainset, valset
 
 def load_fashionmnist_data():

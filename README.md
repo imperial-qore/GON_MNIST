@@ -31,6 +31,21 @@ Some insights.
 - Adding negative (random images) examples helps.
 - Tanh() is better than relu or prelu.
 
+## Arxiv preprint
+https://arxiv.org/abs/2110.02912.
+
+## Cite this work
+Our work is published in NeurIPS 2021, Workshop on ML for Systems. The main GitHub repo for this work is here: https://github.com/imperial-qore/GON.
+```bibtex
+@article{tuli2021generative,
+  title={Generative Optimization Networks for Memory Efficient Data Generation},
+  author={Tuli, Shreshth and Tuli, Shikhar and Casale, Giuliano and Jennings, Nicholas R},
+  journal={Advances in Neural Information Processing Systems, Workshop on ML for Systems},
+  year={2021}
+}
+
+```
+
 ## License
 
 BSD-2-Clause. 
